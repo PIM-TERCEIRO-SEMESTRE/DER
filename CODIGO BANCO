@@ -1,0 +1,149 @@
+CREATE DATABASE AgroTech;
+GO
+
+USE AgroTech;
+GO
+
+-- Tabela Funcionarios
+CREATE TABLE Funcionarios (
+    IDFuncionario INT PRIMARY KEY,
+    Nome NVARCHAR(100),
+    Email NVARCHAR(100),
+    CPF NVARCHAR(14),
+    DataNascimento DATE,
+    CEP NVARCHAR(9),
+    Estado NVARCHAR(2),
+    Cidade NVARCHAR(50),
+    Bairro NVARCHAR(50),
+    Rua NVARCHAR(100),
+    Numero NVARCHAR(10),
+    Complementos NVARCHAR(100),
+    IDEquipe INT
+);
+
+-- Tabela Equipes
+CREATE TABLE Equipes (
+    IDEquipe INT PRIMARY KEY,
+    NomeEquipe NVARCHAR(100)
+);
+
+-- Adicionando chave estrangeira para Funcionarios
+ALTER TABLE Funcionarios
+ADD CONSTRAINT FK_Funcionario_Equipe FOREIGN KEY (IDEquipe) REFERENCES Equipes(IDEquipe);
+
+-- Tabela Clientes
+CREATE TABLE Clientes (
+    IDCliente INT PRIMARY KEY,
+    CPF_CNPJ NVARCHAR(18),
+    Email NVARCHAR(100),
+    CEP NVARCHAR(9),
+    Estado NVARCHAR(2),
+    Cidade NVARCHAR(50),
+    Bairro NVARCHAR(50),
+    Rua NVARCHAR(100),
+    Numero NVARCHAR(10),
+    Complemento NVARCHAR(100)
+);
+
+-- Tabela Fornecedores
+CREATE TABLE Fornecedores (
+    IDFornecedor INT PRIMARY KEY,
+    RazaoSocial NVARCHAR(100),
+    NomeFantasia NVARCHAR(100),
+    CPF_CNPJ NVARCHAR(18),
+    Telefone NVARCHAR(15),
+    Email NVARCHAR(100),
+    CEP NVARCHAR(9),
+    Estado NVARCHAR(2),
+    Cidade NVARCHAR(50),
+    Bairro NVARCHAR(50),
+    Rua NVARCHAR(100),
+    Numero NVARCHAR(10),
+    Complemento NVARCHAR(100)
+);
+
+-- Tabela Compras
+CREATE TABLE Compras (
+    IDCompra INT PRIMARY KEY,
+    IDFuncionario INT,
+    IDFornecedor INT,
+    DataSolicitacao DATE,
+    IDProduto INT,
+    Quantidade INT,
+    Field NVARCHAR(100),
+    CONSTRAINT FK_Compras_Funcionario FOREIGN KEY (IDFuncionario) REFERENCES Funcionarios(IDFuncionario),
+    CONSTRAINT FK_Compras_Fornecedor FOREIGN KEY (IDFornecedor) REFERENCES Fornecedores(IDFornecedor),
+    CONSTRAINT FK_Compras_Produto FOREIGN KEY (IDProduto) REFERENCES Produtos(IDProduto)
+);
+
+-- Tabela Insumos
+CREATE TABLE Insumos (
+    IDInsumo INT PRIMARY KEY,
+    NomeInsumo NVARCHAR(100),
+    Quantidade INT,
+    TipoInsumo NVARCHAR(50)
+);
+
+-- Tabela CompraInsumos
+CREATE TABLE CompraInsumos (
+    IDConsumo INT PRIMARY KEY,
+    IDInsumo INT,
+    IDCompra INT,
+    Quantidade INT,
+    CONSTRAINT FK_CompraInsumo_Insumo FOREIGN KEY (IDInsumo) REFERENCES Insumos(IDInsumo),
+    CONSTRAINT FK_CompraInsumo_Compra FOREIGN KEY (IDCompra) REFERENCES Compras(IDCompra)
+);
+
+-- Tabela Produtos
+CREATE TABLE Produtos (
+    IDProduto INT PRIMARY KEY,
+    NomeProduto NVARCHAR(100),
+    DataColheita DATE,
+    DataValidade DATE,
+    Status NVARCHAR(20),
+    Quantidade INT,
+    Lote NVARCHAR(50)
+);
+
+-- Tabela Producoes
+CREATE TABLE Producoes (
+    IDProducao INT PRIMARY KEY,
+    IDProduto INT,
+    Classe NVARCHAR(50),
+    TempoDeMaturacao INT,
+    DataUltimaColheita DATE,
+    Umidade DECIMAL(5, 2),
+    Temperatura DECIMAL(5, 2),
+    Status NVARCHAR(20),
+    CONSTRAINT FK_Producoes_Produto FOREIGN KEY (IDProduto) REFERENCES Produtos(IDProduto)
+);
+
+-- Tabela InsumosProdutos
+CREATE TABLE InsumosProdutos (
+    IDInsumo INT,
+    IDProducao INT,
+    Quantidade INT,
+    PRIMARY KEY (IDInsumo, IDProducao),
+    CONSTRAINT FK_InsumosProdutos_Insumo FOREIGN KEY (IDInsumo) REFERENCES Insumos(IDInsumo),
+    CONSTRAINT FK_InsumosProdutos_Producao FOREIGN KEY (IDProducao) REFERENCES Producoes(IDProducao)
+);
+
+-- Tabela Vendas
+CREATE TABLE Vendas (
+    IDVenda INT PRIMARY KEY,
+    IDCliente INT,
+    StatusEnvio NVARCHAR(20),
+    DataEnvio DATE,
+    CONSTRAINT FK_Vendas_Cliente FOREIGN KEY (IDCliente) REFERENCES Clientes(IDCliente)
+);
+
+-- Tabela VendasProdutos
+CREATE TABLE VendasProdutos (
+    IDVenda INT,
+    IDProduto INT,
+    Quantidade INT,
+    PRIMARY KEY (IDVenda, IDProduto),
+    CONSTRAINT FK_VendasProdutos_Venda FOREIGN KEY (IDVenda) REFERENCES Vendas(IDVenda),
+    CONSTRAINT FK_VendasProdutos_Produto FOREIGN KEY (IDProduto) REFERENCES Produtos(IDProduto)
+);
+
